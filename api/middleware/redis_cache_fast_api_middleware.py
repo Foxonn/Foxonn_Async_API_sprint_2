@@ -1,6 +1,6 @@
 import functools
 import hashlib
-from typing import Callable, Optional
+from typing import Callable
 
 from redis.asyncio.client import Redis
 from starlette.applications import Starlette
@@ -24,7 +24,7 @@ class RedisCacheFastApiMiddleware(BaseHTTPMiddleware):
         '_cache_expiration',
     )
 
-    def __init__(self, app: Starlette, ioc: IOC, cache_expiration: Optional[int] = 60) -> None:
+    def __init__(self, app: Starlette, ioc: IOC, cache_expiration: int | None = 60) -> None:
         super().__init__(app)
         self._ioc = ioc
         self._cache_expiration = cache_expiration

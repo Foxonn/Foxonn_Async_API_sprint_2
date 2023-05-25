@@ -2,7 +2,6 @@ from http import HTTPStatus
 from typing import Annotated
 from typing import Any
 from typing import Mapping
-from typing import Optional
 from typing import Sequence
 
 import elasticsearch
@@ -43,7 +42,7 @@ class ApiV1Plugin(IPlugin):
     def name(self) -> str:
         return 'api_v1'
 
-    async def load(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         redis = await ioc.get(Redis)
         app = await ioc.get(FastAPI)
 
@@ -89,8 +88,8 @@ class ApiV1Plugin(IPlugin):
             return [FilmModel(**item) for item in result] if result else []
 
         async def films(
-            sort: Optional[str] = None,
-            genre: Optional[str] = None,
+            sort: str | None = None,
+            genre: str | None = None,
             page_number: Annotated[int | None, Query(gt=0)] = 1,
             page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
         ) -> Sequence[FilmModel | None]:

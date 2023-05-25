@@ -1,6 +1,5 @@
 from typing import Any
 from typing import Mapping
-from typing import Optional
 
 from elasticsearch import AsyncElasticsearch
 
@@ -38,7 +37,7 @@ class FunctionsPlugin(IPlugin):
     def name(self) -> str:
         return 'functions'
 
-    async def load(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         elastic = await ioc.get(AsyncElasticsearch)
         ioc.set(IFilmByIdQuery, FilmByIdQuery(elastic=elastic))
         ioc.set(IFilmsQuery, FilmsQuery(elastic=elastic))

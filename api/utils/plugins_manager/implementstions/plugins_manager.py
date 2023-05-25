@@ -3,7 +3,6 @@ from collections import UserDict
 from typing import Any
 from typing import ItemsView
 from typing import Mapping
-from typing import Optional
 
 from ..interfaces import IPlugin
 from ..interfaces import IPluginsManager
@@ -40,7 +39,7 @@ class PluginsManager(IPluginsManager):
     def get(self, plugin_name: str) -> IPlugin:
         return self.__plugins_store[plugin_name]
 
-    async def loads(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def loads(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         _ = []
         for plugin in self.__plugins_store.values():
             if plugins_settings:

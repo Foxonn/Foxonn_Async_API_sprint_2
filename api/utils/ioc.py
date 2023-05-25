@@ -1,4 +1,3 @@
-from typing import Optional
 from typing import Type
 from typing import TypeVar
 
@@ -26,13 +25,13 @@ class IOC:
     def set(self, key: Type[T], value: T) -> None:
         self.__store[key] = value
 
-    async def get(self, key: Type[T]) -> Optional[T]:
+    async def get(self, key: Type[T]) -> T | None:
         @retry(
             retry=retry_if_exception_type(KeyError),
             wait=wait_fixed(1),
             stop=stop_after_attempt(30)
         )
-        def _() -> Optional[T]:
+        def _() -> T | None:
             return self.__store[key]
 
         return _()

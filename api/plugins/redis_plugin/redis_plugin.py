@@ -1,6 +1,5 @@
 from typing import Any
 from typing import Mapping
-from typing import Optional
 
 from redis.asyncio.client import Redis
 
@@ -17,13 +16,13 @@ class RedisPlugin(IPlugin):
     )
 
     def __init__(self) -> None:
-        self.__driver: Optional[Redis] = None
+        self.__driver: Redis | None = None
 
     @property
     def name(self) -> str:
         return 'redis'
 
-    async def load(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         settings = RedisConfig(**plugins_settings)
         self.__driver = Redis(host=settings.host, port=settings.port)
         ioc.set(Redis, self.__driver)

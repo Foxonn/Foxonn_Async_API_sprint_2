@@ -1,6 +1,5 @@
 from typing import Any
 from typing import Mapping
-from typing import Optional
 
 from elasticsearch import AsyncElasticsearch
 
@@ -17,13 +16,13 @@ class ElasticPlugin(IPlugin):
     )
 
     def __init__(self) -> None:
-        self.__driver: Optional[AsyncElasticsearch] = None
+        self.__driver: AsyncElasticsearch | None = None
 
     @property
     def name(self) -> str:
         return 'elastic'
 
-    async def load(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         settings = ElasticConfig(**plugins_settings)
         self.__driver = AsyncElasticsearch(hosts=f'{settings.host}:{settings.port}')
         ioc.set(AsyncElasticsearch, self.__driver)

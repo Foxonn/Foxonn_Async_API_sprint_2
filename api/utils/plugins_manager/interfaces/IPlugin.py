@@ -1,6 +1,5 @@
 from typing import Any
 from typing import Mapping
-from typing import Optional
 
 __all__ = ['IPlugin']
 
@@ -12,7 +11,7 @@ class IPlugin:
     def name(self) -> str:
         raise NotImplementedError()
 
-    async def load(self, plugins_settings: Optional[Mapping[str, Any]] = None) -> None:
+    async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
         raise NotImplementedError()
 
     async def reload(self) -> None:

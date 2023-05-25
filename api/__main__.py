@@ -4,7 +4,6 @@ import uvicorn
 from dynaconf import Dynaconf
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from redis.asyncio.client import Redis
 
 from api import PROJECT_DIR
 from api.config import logger

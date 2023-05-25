@@ -2,7 +2,6 @@ from abc import ABC
 from abc import abstractmethod
 from typing import Any
 from typing import Mapping
-from typing import Optional
 from typing import Sequence
 from typing import TypeVar
 
@@ -19,7 +18,7 @@ class IFilmsQuery(ABC):
         self,
         page_number: int,
         page_size: int,
-        sort: Optional[str] = None,
-        genre: Optional[str] = None,
+        sort: str | None = None,
+        genre: str | None = None,
     ) -> Sequence[Mapping[str, Any] | None]:
         pass

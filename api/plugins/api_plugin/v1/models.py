@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel
 
 __all__ = [
@@ -14,4 +12,4 @@ class Pagination(BaseModel):
 
 class APISearchRequest(BaseModel):
     query: str
-    pagination: Optional[Pagination]
+    pagination: Pagination | None
