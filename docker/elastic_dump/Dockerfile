@@ -1,11 +1,9 @@
-FROM node
+FROM node:current-alpine3.17
 
-RUN npm install elasticdump -g \
-    && apt install unzip
+RUN npm install elasticdump -g
 
-COPY dumps.zip /
 COPY entrypoints.sh /
 
-RUN unzip dumps.zip
+ADD dumps.tar.gz /dumps
 
 ENTRYPOINT ["sh", "entrypoints.sh"]

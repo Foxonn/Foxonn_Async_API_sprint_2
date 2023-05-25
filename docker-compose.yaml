@@ -2,20 +2,38 @@ version: "3"
 
 services:
   redis:
-    image: redis
+    image: redis:7.2-rc2-alpine3.18
     expose:
       - 6379
+    ports:
+      - "6379:6379"
 
-  app:
+  elastic:
+    image: elasticsearch:7.7.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms200m -Xmx200m
+    expose:
+      - 9200
+    ports:
+      - "9200:9200"
+
+  elastic_dump:
+    build: ./docker/elastic_dump/.
+
+  api:
     build: .
     image: asyncapi/app
+    restart: always
     expose:
       - 8000
     volumes:
       - ./services/api:/services/api:ro
     depends_on:
       - redis
+      - elastic
       - nginx
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.__main__:app -b 0.0.0.0
 
   nginx:
     image: nginx:1.23-alpine
@@ -24,12 +42,3 @@ services:
       - ./docker/nginx/configs:/etc/nginx/conf.d:ro
     ports:
       - "8000:80"
-
-  test:
-    build: tests/functional/.
-    depends_on:
-      - app
-    entrypoint: >
-      sh -c "python /tests/functional/utils/wait_for_es.py
-      && python /tests/functional/utils/wait_for_redis.py
-      && pytest /tests/functional"

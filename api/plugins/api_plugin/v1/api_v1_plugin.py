@@ -5,27 +5,26 @@ from typing import Mapping
 from typing import Sequence
 
 import elasticsearch
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
-from fastapi import Query
-from redis.asyncio.client import Redis
 
 from api.models.movies_model import FilmModel
 from api.models.movies_model import GenreModel
 from api.models.movies_model import MoviesModel
 from api.models.movies_model import PersonModel
 from api.utils.ioc import ioc
+from api.utils.paginate_query_params import PaginateQueryParams
 from api.utils.plugins_manager import IPlugin
 from ...functions_plugin.interfaces.query import IFilmByIdQuery
 from ...functions_plugin.interfaces.query import IFilmsPersonByIdQuery
+from ...functions_plugin.interfaces.query import IFilmsQuery
 from ...functions_plugin.interfaces.query import IGenreByIdQuery
 from ...functions_plugin.interfaces.query import IGenresQuery
 from ...functions_plugin.interfaces.query import IPersonByIdQuery
 from ...functions_plugin.interfaces.query import IPersonsQuery
 from ...functions_plugin.interfaces.query import ISearchFilmsQuery
 from ...functions_plugin.interfaces.query import ISearchPersonsQuery
-from ...functions_plugin.interfaces.query import IFilmsQuery
 
 __all__ = ['ApiV1Plugin']
 
@@ -43,7 +42,6 @@ class ApiV1Plugin(IPlugin):
         return 'api_v1'
 
     async def load(self, plugins_settings: Mapping[str, Any] | None = None) -> None:
-        redis = await ioc.get(Redis)
         app = await ioc.get(FastAPI)
 
         async def film_details(film_id: str) -> MoviesModel:
@@ -88,47 +86,58 @@ class ApiV1Plugin(IPlugin):
             return [FilmModel(**item) for item in result] if result else []
 
         async def films(
-            sort: str | None = None,
-            genre: str | None = None,
-            page_number: Annotated[int | None, Query(gt=0)] = 1,
-            page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
+                paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)],
+                sort: str | None = None,
+                genre: str | None = None,
         ) -> Sequence[FilmModel | None]:
             query = await ioc.get(IFilmsQuery)
-            result = await query(sort=sort, page_number=page_number, page_size=page_size, genre=genre)
+            try:
+                result = await query(sort=sort, page_number=paginate.page_number, page_size=paginate.page_size,
+                                     genre=genre)
+            except elasticsearch.exceptions.NotFoundError:
+                return []
             return [FilmModel(**item) for item in result] if result else []
 
         async def persons(
-            page_number: Annotated[int | None, Query(gt=0)] = 1,
-            page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
+                paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)],
         ) -> Sequence[PersonModel | None]:
             query = await ioc.get(IPersonsQuery)
-            result = await query(page_number=page_number, page_size=page_size)
+            try:
+                result = await query(page_number=paginate.page_number, page_size=paginate.page_size)
+            except elasticsearch.exceptions.NotFoundError:
+                return []
             return [PersonModel(**item) for item in result] if result else []
 
         async def genres(
-            page_number: Annotated[int | None, Query(gt=0)] = 1,
-            page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
+                paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)]
         ) -> Sequence[GenreModel | None]:
             query = await ioc.get(IGenresQuery)
-            result = await query(page_number=page_number, page_size=page_size)
+            try:
+                result = await query(page_number=paginate.page_number, page_size=paginate.page_size)
+            except elasticsearch.exceptions.NotFoundError:
+                return []
             return [GenreModel(**item) for item in result] if result else []
 
         async def films_search(
-            query: str,
-            page_number: Annotated[int | None, Query(gt=0)] = 1,
-            page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
+                query: str,
+                paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)]
         ) -> Sequence[FilmModel | None]:
             query_ = await ioc.get(ISearchFilmsQuery)
-            result = await query_(query=query, page_number=page_number, page_size=page_size)
+            try:
+                result = await query_(query=query, page_number=paginate.page_number, page_size=paginate.page_size)
+            except elasticsearch.exceptions.NotFoundError:
+                return []
             return [FilmModel(**item) for item in result] if result else []
 
         async def persons_search(
-            query: str,
-            page_number: Annotated[int | None, Query(gt=0)] = 1,
-            page_size: Annotated[int | None, Query(gt=0, lt=75)] = 25,
+                query: str,
+                paginate: Annotated[PaginateQueryParams, Depends(PaginateQueryParams)],
         ) -> Sequence[PersonModel | None]:
             query_ = await ioc.get(ISearchPersonsQuery)
-            result = await query_(query=query, page_number=page_number, page_size=page_size)
+            try:
+                result = await query_(query=query, page_number=paginate.page_number, page_size=paginate.page_size)
+            except elasticsearch.exceptions.NotFoundError:
+                return []
             return [PersonModel(**item) for item in result] if result else []
 
         self.__route.add_api_route(
