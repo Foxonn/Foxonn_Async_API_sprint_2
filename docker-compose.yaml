@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  redis:
+    image: redis
+    expose:
+      - 6379
+
+  app:
+    build: .
+    image: asyncapi/app
+    expose:
+      - 8000
+    volumes:
+      - ./services/api:/services/api:ro
+    depends_on:
+      - redis
+      - nginx
+
+  nginx:
+    image: nginx:1.23-alpine
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/configs:/etc/nginx/conf.d:ro
+    ports:
+      - "8000:80"
+
+  test:
+    build: tests/functional/.
+    depends_on:
+      - app
+    entrypoint: >
+      sh -c "python /tests/functional/utils/wait_for_es.py
+      && python /tests/functional/utils/wait_for_redis.py
+      && pytest /tests/functional"

@@ -1,0 +1,10 @@
+[plugins.api]
+url = 'http://api:8000/'
+
+[plugins.redis]
+port = 6379
+host = 'redis'
+
+[plugins.elastic]
+port = 9200
+host = 'elastic'
