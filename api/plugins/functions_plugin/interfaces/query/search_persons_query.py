@@ -2,7 +2,6 @@ from abc import ABC
 from abc import abstractmethod
 from typing import Any
 from typing import Mapping
-from typing import Optional
 from typing import Sequence
 from typing import TypeVar
 
@@ -18,7 +17,7 @@ class ISearchPersonsQuery(ABC):
     async def __call__(
         self,
         query: str,
-        page_number: Optional[int],
-        page_size: Optional[int],
+        page_number: int | None,
+        page_size: int | None,
     ) -> Sequence[Mapping[str, Any] | None]:
         pass

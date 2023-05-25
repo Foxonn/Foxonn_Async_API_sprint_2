@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from typing import Mapping
 from typing import Sequence
 
@@ -23,8 +23,8 @@ class FilmsQuery(IFilmsQuery):
         self,
         page_number: int,
         page_size: int,
-        sort: Optional[str] = None,
-        genre: Optional[str] = None,
+        sort: str | None = None,
+        genre: str | None = None,
     ) -> Sequence[Mapping[str, Any] | None]:
         from_ = page_size * page_number
         body = {}

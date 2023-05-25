@@ -4,7 +4,6 @@ import uvicorn
 from dynaconf import Dynaconf
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from redis.asyncio.client import Redis
 
 from api import PROJECT_DIR
 from api.config import logger
@@ -59,6 +58,7 @@ if __name__ == '__main__':
     uvicorn.run(
         '__main__:app',
         host='0.0.0.0',
+        port=8080,
         log_level=logging.DEBUG,
         log_config=logger.LOGGING,
     )

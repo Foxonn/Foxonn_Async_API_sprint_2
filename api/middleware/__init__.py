@@ -1,1 +1,1 @@
-from .RedisCacheFastApiMiddleware import RedisCacheFastApiMiddleware
+from .redis_cache_fast_api_middleware import RedisCacheFastApiMiddleware
